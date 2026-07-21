@@ -51,6 +51,16 @@
   </style>
 </head>
 <body id="mainBody" class="text-slate-800 antialiased selection:bg-cyan-100 selection:text-sky-900">
+  <div id="savingOverlay" class="saving-overlay">
+    <div class="bg-white rounded-3xl p-6 shadow-soft flex items-center gap-4">
+      <i class="fa-solid fa-spinner fa-spin text-2xl text-sky-600"></i>
+      <div>
+        <p class="font-bold text-slate-900">กำลังบันทึกข้อมูล...</p>
+        <p class="text-xs text-slate-500">กรุณารอสักครู่ ระบบกำลังอัปเดตข้อมูลลง Google Sheets</p>
+      </div>
+    </div>
+  </div>
+
   <nav id="navbar" class="fixed top-0 inset-x-0 z-50 glass border-b border-white/70 transition-shadow">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="h-20 flex items-center justify-between gap-4">
@@ -287,7 +297,6 @@
     let adminPassword = sessionStorage.getItem('epiAdminPassword') || '';
     let isSavingContent = false;
     let editorHasUnsavedChanges = false;
-    let pendingDeleteId = '';
 
     const accentMap = {
       sky: { icon: 'text-sky-600 bg-sky-50', chip: 'bg-sky-50 text-sky-700', border: 'border-sky-100' },
@@ -357,7 +366,7 @@
       updateIconPreview();
     }
 
-    document.addEventListener('DOMContentLoaded' , () => {
+    document.addEventListener('DOMContentLoaded', () => {
       bindModalBackdrop();
       populateIconDropdown();
       bindEditorDraftListeners();
@@ -802,7 +811,7 @@
     function bindModalBackdrop() {
       document.querySelectorAll('.fixed.inset-0').forEach(modal => modal.addEventListener('click', e => {
         if (e.target === modal) {
-          if (modal.id === 'editorModal') return; // ป้องกันคลิกพื้นหลังแล้วฟอร์มหายระหว่างกรอก/อัปโหลด
+          if (modal.id === 'editorModal') return;
           closeModal(modal.id);
         }
       }));
