@@ -375,11 +375,27 @@
       window.addEventListener('scroll', () => document.getElementById('navbar').classList.toggle('shadow-md', window.scrollY > 12));
     });
 
-    function callServer(functionName, args = []) {
-      return new Promise((resolve, reject) => {
-        google.script.run.withSuccessHandler(resolve).withFailureHandler(reject)[functionName](...args);
-      });
-    }
+    // กำหนด URL ของ Google Apps Script Web App ที่นี่
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzj4i6TzM2fi-zyCKDqumlV5MgbApA9tu8tP2_JjqubeCsbAwMdGFOGx2wyutrt1N-P/exec";
+
+function callServer(functionName, args = []) {
+  return new Promise((resolve, reject) => {
+    // ใช้ Fetch API เพื่อส่งข้อมูลไปยัง Google Apps Script แทน google.script.run
+    fetch(GAS_URL, {
+      method: "POST",
+      mode: "no-cors", // หรือปรับเป็น CORS หากฝั่ง Apps Script ตั้งค่า DoPost รองรับ
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ functionName: functionName, args: args })
+    })
+    .then(() => {
+      // เนื่องจากโหมด no-cors จะไม่สามารถอ่านผลลัพธ์กลับมาตรงๆ ได้ แนะนำให้ใช้ GET สำหรับดึงข้อมูล
+      // หรือปรับโค้ดฝั่ง Google Apps Script ให้รองรับ Web App แบบ DoGet/DoPost
+    })
+    .catch(err => reject(err));
+  });
+}
 
     async function loadData() {
       showSkeleton();
