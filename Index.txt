@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>กลุ่มระบาดวิทยาและตอบโต้ภาวะฉุกเฉินทางสาธารณสุข สคร.8 อุดรธานี</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Prompt', 'sans-serif'] },
+          colors: {
+            odpc: {
+              navy: '#0f172a', blue: '#0369a1', sky: '#0ea5e9', cyan: '#22d3ee', mint: '#10b981'
+            }
+          },
+          boxShadow: { soft: '0 20px 50px rgba(15,23,42,.10)' }
+        }
+      }
+    }
+  </script>
+  <style>
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Prompt', sans-serif; background: #f8fafc; }
+    .glass { background: rgba(255,255,255,.82); backdrop-filter: blur(18px); }
+    .hero-bg {
+      background:
+        radial-gradient(circle at 12% 18%, rgba(34,211,238,.35), transparent 32%),
+        radial-gradient(circle at 88% 18%, rgba(16,185,129,.28), transparent 28%),
+        linear-gradient(135deg, #0f172a 0%, #075985 46%, #0284c7 100%);
+      position: relative; overflow: hidden;
+    }
+    .hero-bg:before { content: ''; position: absolute; inset: -30%; background-image: linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px); background-size: 44px 44px; transform: rotate(8deg); }
+    .section-card { transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease; }
+    .section-card:hover { transform: translateY(-4px); box-shadow: 0 18px 45px rgba(15,23,42,.10); }
+    .admin-only { display: none; }
+    body.is-admin .admin-only { display: inline-flex; }
+    body.is-admin .admin-panel { display: block; }
+    .admin-panel { display: none; }
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .news-image-preview img { width: 100%; height: 86px; object-fit: cover; border-radius: 1rem; border: 1px solid #e2e8f0; }
+
+    .icon-select-card { border: 1px solid rgb(226 232 240); border-radius: 1rem; background: white; }
+    .icon-preview-box { width: 3rem; height: 3rem; border-radius: 1rem; display: flex; align-items: center; justify-content: center; background: rgb(240 249 255); color: rgb(2 132 199); font-size: 1.25rem; flex-shrink: 0; }
+    .saving-overlay { position: fixed; inset: 0; z-index: 140; display: none; align-items: center; justify-content: center; background: rgba(15,23,42,.45); backdrop-filter: blur(3px); }
+    .saving-overlay.show { display: flex; }
+  </style>
+</head>
+<body id="mainBody" class="text-slate-800 antialiased selection:bg-cyan-100 selection:text-sky-900">
+  <nav id="navbar" class="fixed top-0 inset-x-0 z-50 glass border-b border-white/70 transition-shadow">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="h-20 flex items-center justify-between gap-4">
+        <a href="#home" class="flex items-center gap-3 min-w-0">
+          <img src="https://drive.google.com/thumbnail?id=1OWRqh2qNYdeWfJzjMq8u5LN8ZvJFAkjn&sz=w800" alt="โลโก้ สคร.8" class="h-12 w-auto object-contain">
+          <div class="min-w-0">
+            <h1 class="text-sm md:text-lg font-bold text-slate-900 truncate">กลุ่มระบาดวิทยาและตอบโต้ภาวะฉุกเฉินทางสาธารณสุข</h1>
+            <p class="text-xs md:text-sm text-sky-700 font-medium truncate">สคร.8 อุดรธานี · Epidemiology & PHEM</p>
+          </div>
+        </a>
+        <div class="hidden xl:flex items-center gap-5 text-sm font-medium text-slate-600">
+          <a class="hover:text-sky-700" href="#news">ข่าว</a>
+          <a class="hover:text-sky-700" href="#innovation">ระบบสารสนเทศ</a>
+          <a class="hover:text-sky-700" href="#surveillance">แนวทางโรค</a>
+          <a class="hover:text-sky-700" href="#eoc_ics">EOC/ICS</a>
+          <a class="hover:text-sky-700" href="#training">ประชุม/อบรม</a>
+          <a class="hover:text-sky-700" href="#other">เอกสารอื่นๆ</a>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="openSearch()" class="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 text-sm"><i class="fa-solid fa-magnifying-glass"></i> ค้นหา</button>
+          <button id="loginBtn" onclick="openModal('loginModal')" class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900 text-white hover:bg-sky-800 text-sm shadow-sm"><i class="fa-solid fa-lock"></i><span class="hidden sm:inline">Admin</span></button>
+          <button id="logoutBtn" onclick="logoutAdmin()" class="hidden items-center gap-2 px-4 py-2 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-100 text-sm"><i class="fa-solid fa-right-from-bracket"></i><span class="hidden sm:inline">ออก</span></button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <header id="home" class="hero-bg pt-32 pb-20 md:pt-40 md:pb-28 text-white">
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid lg:grid-cols-[1.15fr_.85fr] gap-12 items-center">
+        <div>
+          <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/15 backdrop-blur text-sm mb-6">
+            <span class="relative flex h-3 w-3"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-400"></span></span>
+            Epidemiology Intelligence & Emergency Response Hub
+          </div>
+          <h2 class="text-4xl md:text-6xl font-bold leading-tight tracking-tight">ศูนย์ข้อมูล งานระบาดวิทยา<br><span class="text-cyan-200">และตอบโต้ภาวะฉุกเฉิน</span></h2>
+          <p class="mt-6 text-lg md:text-xl text-sky-50/90 leading-relaxed max-w-3xl">รวบรวมข่าวสาร ระบบสารสนเทศ นวัตกรรม แนวทางเฝ้าระวัง/สอบสวนโรค เอกสาร EOC/ICS และเอกสารประชุมอบรม สำหรับสนับสนุน SAT/JIT/CDCU/FEMT เขตสุขภาพที่ 8</p>
+          <div class="mt-9 flex flex-wrap gap-3">
+            <a href="#innovation" class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white text-sky-900 font-semibold shadow-soft hover:bg-cyan-50">เข้าสู่ระบบสารสนเทศ <i class="fa-solid fa-arrow-right"></i></a>
+            <button onclick="openSearch()" class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/10 border border-white/20 hover:bg-white/15 font-semibold">ค้นหาเอกสาร <i class="fa-solid fa-search"></i></button>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="rounded-3xl bg-white/10 border border-white/15 backdrop-blur p-6 shadow-soft"><i class="fa-solid fa-chart-line text-3xl text-cyan-200"></i><p class="mt-4 text-3xl font-bold" id="statSystems">0</p><p class="text-sm text-sky-50/80">ระบบ/นวัตกรรม</p></div>
+          <div class="rounded-3xl bg-white/10 border border-white/15 backdrop-blur p-6 shadow-soft mt-8"><i class="fa-solid fa-file-shield text-3xl text-emerald-200"></i><p class="mt-4 text-3xl font-bold" id="statDocs">0</p><p class="text-sm text-sky-50/80">เอกสารเผยแพร่</p></div>
+          <div class="rounded-3xl bg-white/10 border border-white/15 backdrop-blur p-6 shadow-soft"><i class="fa-solid fa-tower-broadcast text-3xl text-indigo-200"></i><p class="mt-4 text-3xl font-bold" id="statEoc">0</p><p class="text-sm text-sky-50/80">รายการ EOC/ICS</p></div>
+          <div class="rounded-3xl bg-white/10 border border-white/15 backdrop-blur p-6 shadow-soft mt-8"><i class="fa-solid fa-bullhorn text-3xl text-amber-200"></i><p class="mt-4 text-3xl font-bold" id="statNews">0</p><p class="text-sm text-sky-50/80">ข่าว/ประกาศ</p></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="py-10 bg-white border-b border-slate-100">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex gap-3 overflow-x-auto hide-scrollbar pb-2" id="quickLinks"></div>
+      </div>
+    </section>
+
+    <section class="admin-panel py-8 bg-slate-950 text-white border-y border-slate-800">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <p class="text-sm text-emerald-300 font-semibold"><i class="fa-solid fa-user-shield mr-2"></i>Admin Mode</p>
+          <h3 class="text-2xl font-bold">จัดการข้อมูลหน้าเว็บไซต์</h3>
+          <p class="text-slate-300 text-sm mt-1">เพิ่ม แก้ไข ลบ และซ่อน/เผยแพร่ข้อมูลได้ทุกหมวด โดยบันทึกกลับ Google Sheets</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button onclick="openEditor()" class="px-5 py-3 rounded-full bg-emerald-500 hover:bg-emerald-600 font-semibold"><i class="fa-solid fa-plus mr-2"></i>เพิ่มข้อมูลใหม่</button>
+          <button onclick="reloadAdminData()" class="px-5 py-3 rounded-full bg-white/10 hover:bg-white/15 font-semibold"><i class="fa-solid fa-rotate mr-2"></i>โหลดข้อมูลใหม่</button>
+        </div>
+      </div>
+    </section>
+
+    <div id="sectionsContainer"></div>
+  </main>
+
+  <footer class="bg-slate-950 text-slate-300 py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-[1.4fr_.6fr] gap-8">
+      <div>
+        <h3 class="text-white text-xl font-bold">กลุ่มระบาดวิทยาและตอบโต้ภาวะฉุกเฉินทางสาธารณสุข สคร.8 อุดรธานี</h3>
+        <p class="mt-3 text-sm leading-relaxed text-slate-400">เว็บไซต์ศูนย์รวมข้อมูลสนับสนุนการเฝ้าระวัง สอบสวน ป้องกันควบคุมโรค และตอบโต้ภาวะฉุกเฉินทางสาธารณสุข เขตสุขภาพที่ 8</p>
+        <p class="mt-4 text-xs text-slate-500" id="lastUpdated">อัปเดตล่าสุด: -</p>
+      </div>
+      <div class="md:text-right">
+        <p class="text-sm text-slate-400">Powered by Google Apps Script + Google Sheets</p>
+        <button onclick="openModal('loginModal')" class="mt-3 text-sm text-sky-300 hover:text-sky-200">เข้าสู่ระบบผู้ดูแล</button>
+      </div>
+    </div>
+  </footer>
+
+  <div id="loginModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-3xl w-full max-w-md p-6 shadow-soft">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+        <h3 class="text-xl font-bold"><i class="fa-solid fa-lock text-sky-600 mr-2"></i>เข้าสู่ระบบผู้ดูแล</h3>
+        <button onclick="closeModal('loginModal')" class="text-slate-400 hover:text-rose-500"><i class="fa-solid fa-xmark text-xl"></i></button>
+      </div>
+      <form onsubmit="loginAdmin(event)">
+        <label class="text-sm font-medium text-slate-600">รหัสผ่านผู้ดูแล</label>
+        <input id="adminPassword" type="password" required class="mt-2 w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-400" placeholder="กรอกรหัสผ่าน">
+        <p id="loginError" class="hidden mt-3 text-sm text-rose-600">รหัสผ่านไม่ถูกต้อง</p>
+        <button class="mt-6 w-full py-3 rounded-2xl bg-slate-900 text-white font-semibold hover:bg-sky-800" type="submit"><i class="fa-solid fa-right-to-bracket mr-2"></i>เข้าสู่ระบบ</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="editorModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-3xl w-full max-w-3xl max-h-[92vh] overflow-y-auto p-6 shadow-soft">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+        <h3 id="editorTitle" class="text-xl font-bold"><i class="fa-solid fa-pen-to-square text-emerald-600 mr-2"></i>เพิ่มข้อมูลใหม่</h3>
+        <button onclick="closeModal('editorModal')" class="text-slate-400 hover:text-rose-500"><i class="fa-solid fa-xmark text-xl"></i></button>
+      </div>
+      <form id="contentForm" onsubmit="saveContent(event)">
+        <input type="hidden" id="fieldId">
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <label class="text-sm font-medium text-slate-600">หมวดข้อมูล *</label>
+            <select id="fieldCategory" required onchange="toggleNewsImageFields()" class="mt-2 w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-400"></select>
+          </div>
+          <div>
+            <label class="text-sm font-medium text-slate-600">สถานะ</label>
+            <select id="fieldStatus" class="mt-2 w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-400">
+              <option value="เผยแพร่">เผยแพร่</option>
+              <option value="ซ่อน">ซ่อน</option>
+              <option value="ปิดปรับปรุง">ปิดปรับปรุง</option>
+            </select>
+          </div>
+          <div class="md:col-span-2">
+            <label class="text-sm font-medium text-slate-600">หัวข้อ *</label>
+            <input id="fieldTitle" required class="mt-2 w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-400" placeholder="เช่น แนวทางการสอบสวนโรค..."></input>
+          </div>
+          <div>
+            <label class="text-sm font-medium text-slate-600">หัวข้อรอง / อังกฤษ / ประเภท</label>
+            <input id="fieldSubtitle" class="mt-2 w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-400" placeholder="เช่น Dengue guideline / Dashboard"></input>
+          </div>
+          <div>
+            <label class="text-sm font-medium text-slate-600">วันที่แสดงผล</label>
+            <input id="fieldDateText" class="mt-2 w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-400" placeholder="เช่น 30 พ.ค. 2569"></input>
+          </div>
+          <div class="md:col-span-2">
+            <label class="text-sm font-medium text-slate-600">คำอธิบาย</label>
+            <textarea id="fieldDescription" rows="4" class="mt-2 w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-400" placeholder="สรุปรายละเอียดแบบสั้น กระชับ"></textarea>
+          </div>
+          <div class="md:col-span-2">
+            <label class="text-sm font-medium text-slate-600">ลิงก์เอกสาร / ระบบ / Google Drive</label>
+            <input id="fieldUrl" type="url" class="mt-2 w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-400" placeholder="https://..."></input>
+          </div>
+          <div id="newsImageFields" class="hidden md:col-span-2 rounded-3xl border border-amber-100 bg-amber-50/50 p-4">
+            <div class="flex items-start justify-between gap-3 mb-3">
+              <div>
+                <label class="text-sm font-semibold text-amber-800"><i class="fa-solid fa-image mr-2"></i>รูปประกอบข่าวประชาสัมพันธ์ / ประกาศ</label>
+                <p class="text-xs text-amber-700/80 mt-1">แนบได้ 1–2 รูป รองรับ JPG/PNG/WebP ขนาดไม่เกิน 5 MB ต่อรูป</p>
+              </div>
+            </div>
+            <input type="hidden" id="fieldImage1Url">
+            <input type="hidden" id="fieldImage2Url">
+            <div class="grid md:grid-cols-2 gap-4">
+              <div>
+                <label class="text-xs font-medium text-slate-600">รูปที่ 1</label>
+                <input id="fieldImage1File" type="file" accept="image/*" onchange="previewSelectedImage(1)" class="mt-2 w-full text-sm file:mr-3 file:px-4 file:py-2 file:rounded-full file:border-0 file:bg-amber-100 file:text-amber-800 hover:file:bg-amber-200">
+                <div id="image1Preview" class="news-image-preview mt-3"></div>
+                <button type="button" onclick="clearNewsImage(1)" class="mt-2 text-xs text-rose-600 hover:underline">ลบรูปที่ 1</button>
+              </div>
+              <div>
+                <label class="text-xs font-medium text-slate-600">รูปที่ 2</label>
+                <input id="fieldImage2File" type="file" accept="image/*" onchange="previewSelectedImage(2)" class="mt-2 w-full text-sm file:mr-3 file:px-4 file:py-2 file:rounded-full file:border-0 file:bg-amber-100 file:text-amber-800 hover:file:bg-amber-200">
+                <div id="image2Preview" class="news-image-preview mt-3"></div>
+                <button type="button" onclick="clearNewsImage(2)" class="mt-2 text-xs text-rose-600 hover:underline">ลบรูปที่ 2</button>
+              </div>
+            </div>
+          </div>
+          <div>
+            <label class="text-sm font-medium text-slate-600">Icon Font Awesome</label>
+            <div class="mt-2 icon-select-card p-3 flex gap-3 items-center">
+              <div id="iconPreviewBox" class="icon-preview-box"><i id="iconPreview" class="fa-solid fa-file-lines"></i></div>
+              <div class="flex-1 min-w-0">
+                <select id="fieldIcon" onchange="updateIconPreview()" class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-400 text-sm"></select>
+                <input id="fieldIconCustom" oninput="syncCustomIcon()" class="mt-2 hidden w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-400 text-sm" placeholder="พิมพ์ชื่อ icon เช่น fa-virus-covid"></input>
+              </div>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">เลือกจาก Dropdown หรือเลือก “กำหนดเอง” แล้วพิมพ์ชื่อ icon ของ Font Awesome</p>
+          </div>
+          <div>
+            <label class="text-sm font-medium text-slate-600">สี</label>
+            <select id="fieldAccent" class="mt-2 w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-400">
+              <option value="sky">ฟ้า</option><option value="amber">เหลือง</option><option value="rose">ชมพู/แดง</option><option value="indigo">คราม</option><option value="emerald">เขียว</option><option value="slate">เทา</option><option value="violet">ม่วง</option><option value="cyan">ฟ้าอมเขียว</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-sm font-medium text-slate-600">ลำดับแสดงผล</label>
+            <input id="fieldSortOrder" type="number" min="1" class="mt-2 w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-400" value="999"></input>
+          </div>
+          <div class="flex items-center gap-3 pt-8">
+            <input id="fieldFeatured" type="checkbox" class="w-5 h-5 rounded border-slate-300">
+            <label for="fieldFeatured" class="text-sm font-medium text-slate-700">ปักหมุด / แนะนำ</label>
+          </div>
+        </div>
+        <div class="mt-8 flex flex-col sm:flex-row justify-between gap-3">
+          <button id="deleteCurrentBtn" type="button" onclick="askDeleteCurrent()" class="hidden px-5 py-3 rounded-2xl bg-rose-50 text-rose-600 hover:bg-rose-100 font-semibold"><i class="fa-solid fa-trash mr-2"></i>ลบรายการนี้</button>
+          <div class="sm:ml-auto flex gap-3">
+            <button type="button" onclick="closeModal('editorModal')" class="px-5 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold">ยกเลิก</button>
+            <button id="saveBtn" type="submit" class="px-5 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-semibold"><i class="fa-solid fa-floppy-disk mr-2"></i>บันทึก</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="newsDetailModal" class="fixed inset-0 z-[105] hidden items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-3xl w-full max-w-4xl max-h-[92vh] overflow-y-auto shadow-soft">
+      <div class="sticky top-0 z-10 bg-white/95 backdrop-blur border-b border-slate-100 px-5 py-4 flex items-center justify-between">
+        <h3 class="font-bold text-slate-900"><i class="fa-regular fa-newspaper text-amber-500 mr-2"></i>รายละเอียดข่าวประชาสัมพันธ์ / ประกาศ</h3>
+        <button onclick="closeModal('newsDetailModal')" class="w-10 h-10 rounded-full bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-500"><i class="fa-solid fa-xmark text-xl"></i></button>
+      </div>
+      <div id="newsDetailBody" class="p-5 sm:p-7"></div>
+    </div>
+  </div>
+
+  <div id="searchModal" class="fixed inset-0 z-[100] hidden items-start justify-center bg-slate-950/60 backdrop-blur-sm p-4 pt-24">
+    <div class="bg-white rounded-3xl w-full max-w-3xl p-5 shadow-soft">
+      <div class="flex items-center gap-3">
+        <i class="fa-solid fa-search text-slate-400"></i>
+        <input id="globalSearch" oninput="renderSearchResults()" class="w-full py-3 outline-none text-lg" placeholder="ค้นหาข่าว ระบบ แนวทาง หรือเอกสาร...">
+        <button onclick="closeModal('searchModal')" class="text-slate-400 hover:text-rose-500"><i class="fa-solid fa-xmark text-xl"></i></button>
+      </div>
+      <div id="searchResults" class="mt-4 max-h-[55vh] overflow-y-auto divide-y divide-slate-100"></div>
+    </div>
+  </div>
+
+  <div id="toast" class="fixed bottom-5 right-5 z-[120] hidden rounded-2xl bg-slate-900 text-white px-5 py-4 shadow-soft text-sm"></div>
+
+  <script>
+    let sections = [];
+    let items = [];
+    let adminPassword = sessionStorage.getItem('epiAdminPassword') || '';
+    let isSavingContent = false;
+    let editorHasUnsavedChanges = false;
+    let pendingDeleteId = '';
+
+    const accentMap = {
+      sky: { icon: 'text-sky-600 bg-sky-50', chip: 'bg-sky-50 text-sky-700', border: 'border-sky-100' },
+      amber: { icon: 'text-amber-600 bg-amber-50', chip: 'bg-amber-50 text-amber-700', border: 'border-amber-100' },
+      rose: { icon: 'text-rose-600 bg-rose-50', chip: 'bg-rose-50 text-rose-700', border: 'border-rose-100' },
+      indigo: { icon: 'text-indigo-600 bg-indigo-50', chip: 'bg-indigo-50 text-indigo-700', border: 'border-indigo-100' },
+      emerald: { icon: 'text-emerald-600 bg-emerald-50', chip: 'bg-emerald-50 text-emerald-700', border: 'border-emerald-100' },
+      slate: { icon: 'text-slate-600 bg-slate-100', chip: 'bg-slate-100 text-slate-700', border: 'border-slate-200' },
+      violet: { icon: 'text-violet-600 bg-violet-50', chip: 'bg-violet-50 text-violet-700', border: 'border-violet-100' },
+      cyan: { icon: 'text-cyan-600 bg-cyan-50', chip: 'bg-cyan-50 text-cyan-700', border: 'border-cyan-100' }
+    };
+
+    const iconOptions = [
+      ['fa-newspaper','ข่าว/ประกาศ'], ['fa-bullhorn','ประชาสัมพันธ์'], ['fa-circle-info','ข้อมูลทั่วไป'], ['fa-file-lines','เอกสาร'], ['fa-file-medical','เอกสารการแพทย์'], ['fa-folder-open','คลังเอกสาร'],
+      ['fa-laptop-code','ระบบสารสนเทศ'], ['fa-chart-line','Dashboard/แนวโน้ม'], ['fa-chart-pie','วิเคราะห์ข้อมูล'], ['fa-database','ฐานข้อมูล'], ['fa-robot','AI/Analytics'], ['fa-magnifying-glass-chart','ค้นหา/วิเคราะห์'],
+      ['fa-virus','ไวรัส'], ['fa-virus-covid','COVID/ทางเดินหายใจ'], ['fa-bacterium','แบคทีเรีย'], ['fa-mosquito','ยุง/แมลงนำโรค'], ['fa-lungs','ระบบหายใจ'], ['fa-syringe','วัคซีน/เข็ม'], ['fa-stethoscope','บริการสุขภาพ'], ['fa-kit-medical','ชุดปฐมพยาบาล'],
+      ['fa-triangle-exclamation','แจ้งเตือน/ฉุกเฉิน'], ['fa-tower-broadcast','สื่อสารความเสี่ยง'], ['fa-shield-virus','ควบคุมโรค'], ['fa-house-medical-flag','EOC/ICS'], ['fa-people-arrows','ผู้สัมผัส/สอบสวน'], ['fa-route','ติดตามพื้นที่'],
+      ['fa-graduation-cap','อบรม/ประชุม'], ['fa-chalkboard-user','วิทยากร/สอน'], ['fa-users-gear','บุคลากร/ทีมงาน'], ['fa-clipboard-check','แบบประเมิน'], ['fa-list-check','Checklist'], ['fa-calendar-days','ปฏิทิน/กิจกรรม'],
+      ['fa-map-location-dot','แผนที่/พื้นที่'], ['fa-location-dot','พิกัด'], ['fa-link','ลิงก์'], ['fa-image','รูปภาพ'], ['fa-download','ดาวน์โหลด'], ['fa-cloud-arrow-up','อัปโหลด'],
+      ['fa-custom','กำหนดเอง']
+    ];
+
+    function populateIconDropdown() {
+      const select = document.getElementById('fieldIcon');
+      if (!select) return;
+      select.innerHTML = iconOptions.map(([icon, label]) => `<option value="${escapeAttr(icon)}">${label} — ${icon}</option>`).join('');
+    }
+
+    function setIconValue(icon) {
+      const cleaned = String(icon || 'fa-file-lines').trim() || 'fa-file-lines';
+      const select = document.getElementById('fieldIcon');
+      const custom = document.getElementById('fieldIconCustom');
+      if (!select || !custom) return;
+      const exists = iconOptions.some(([value]) => value === cleaned);
+      if (exists) {
+        select.value = cleaned;
+        custom.classList.add('hidden');
+        custom.value = '';
+      } else {
+        select.value = 'fa-custom';
+        custom.classList.remove('hidden');
+        custom.value = cleaned;
+      }
+      updateIconPreview();
+    }
+
+    function getSelectedIconValue() {
+      const select = document.getElementById('fieldIcon');
+      const custom = document.getElementById('fieldIconCustom');
+      if (!select) return 'fa-file-lines';
+      if (select.value === 'fa-custom') return (custom.value || 'fa-file-lines').trim();
+      return select.value || 'fa-file-lines';
+    }
+
+    function updateIconPreview() {
+      const select = document.getElementById('fieldIcon');
+      const custom = document.getElementById('fieldIconCustom');
+      if (!select || !custom) return;
+      custom.classList.toggle('hidden', select.value !== 'fa-custom');
+      const icon = getSelectedIconValue();
+      const preview = document.getElementById('iconPreview');
+      if (preview) preview.className = `fa-solid ${icon}`;
+      rememberEditorDraft();
+    }
+
+    function syncCustomIcon() {
+      updateIconPreview();
+    }
+
+    document.addEventListener('DOMContentLoaded' , () => {
+      bindModalBackdrop();
+      populateIconDropdown();
+      bindEditorDraftListeners();
+      loadData();
+      if (adminPassword) setAdminMode(true);
+      window.addEventListener('scroll', () => document.getElementById('navbar').classList.toggle('shadow-md', window.scrollY > 12));
+    });
+
+    function callServer(functionName, args = []) {
+      return new Promise((resolve, reject) => {
+        google.script.run.withSuccessHandler(resolve).withFailureHandler(reject)[functionName](...args);
+      });
+    }
+
+    async function loadData() {
+      showSkeleton();
+      try {
+        const res = await callServer('getWebData');
+        sections = res.sections || [];
+        items = res.items || [];
+        renderAll();
+        document.getElementById('lastUpdated').textContent = 'อัปเดตล่าสุด: ' + (res.updatedAt || '-');
+      } catch (err) {
+        showToast('โหลดข้อมูลไม่สำเร็จ: ' + err.message, true);
+      }
+    }
+
+    async function reloadAdminData() {
+      try {
+        const res = await callServer('getAdminData', [adminPassword]);
+        sections = res.sections || [];
+        items = res.items || [];
+        renderAll();
+        showToast('โหลดข้อมูลสำหรับผู้ดูแลแล้ว');
+      } catch (err) {
+        showToast(err.message, true);
+      }
+    }
+
+    function renderAll() {
+      renderQuickLinks();
+      renderCategoryOptions();
+      renderSections();
+      renderStats();
+    }
+
+    function showSkeleton() {
+      document.getElementById('sectionsContainer').innerHTML = '<section class="py-16"><div class="max-w-7xl mx-auto px-4"><div class="animate-pulse grid md:grid-cols-3 gap-6"><div class="h-56 bg-slate-200 rounded-3xl"></div><div class="h-56 bg-slate-200 rounded-3xl"></div><div class="h-56 bg-slate-200 rounded-3xl"></div></div></div></section>';
+    }
+
+    function renderQuickLinks() {
+      document.getElementById('quickLinks').innerHTML = sections.map(s => `<a href="#${s.key}" class="shrink-0 inline-flex items-center gap-2 px-4 py-3 rounded-2xl bg-slate-50 hover:bg-sky-50 border border-slate-100 hover:border-sky-100 text-sm font-semibold text-slate-700"><i class="fa-solid ${s.icon} text-sky-600"></i>${escapeHtml(s.title)}</a>`).join('');
+    }
+
+    function renderSections() {
+      const html = sections.map((section, idx) => {
+        const sectionItems = items.filter(item => item.category === section.key && item.status !== 'ซ่อน');
+        const bg = idx % 2 === 0 ? 'bg-slate-50' : 'bg-white';
+        const adminAdd = `<button onclick="openEditor('${section.key}')" class="admin-only px-4 py-2 rounded-full bg-slate-900 text-white hover:bg-sky-800 text-sm font-semibold"><i class="fa-solid fa-plus mr-2"></i>เพิ่มข้อมูล</button>`;
+        return `<section id="${section.key}" class="py-20 ${bg} border-b border-slate-100">
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10">
+              <div>
+                <span class="inline-flex items-center gap-2 text-sm font-bold tracking-wide uppercase ${accentMap[section.accent]?.chip || accentMap.sky.chip} px-3 py-1 rounded-full"><i class="fa-solid ${section.icon}"></i>${escapeHtml(section.subtitle)}</span>
+                <h2 class="mt-4 text-3xl md:text-4xl font-bold text-slate-900">${escapeHtml(section.title)}</h2>
+                <p class="mt-3 text-slate-500 max-w-3xl leading-relaxed">${escapeHtml(section.description)}</p>
+              </div>
+              <div class="flex gap-2">${adminAdd}</div>
+            </div>
+            ${renderItems(section, sectionItems)}
+          </div>
+        </section>`;
+      }).join('');
+      document.getElementById('sectionsContainer').innerHTML = html;
+    }
+
+    function renderItems(section, sectionItems) {
+      if (!sectionItems.length) {
+        return `<div class="rounded-3xl border border-dashed border-slate-300 bg-white/70 p-10 text-center text-slate-500"><i class="fa-regular fa-folder-open text-4xl mb-3"></i><p>ยังไม่มีข้อมูลในหมวดนี้</p><button onclick="openEditor('${section.key}')" class="admin-only mt-4 px-4 py-2 rounded-full bg-slate-900 text-white text-sm">เพิ่มข้อมูลแรก</button></div>`;
+      }
+      if (section.layout === 'news') return `<div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">${sectionItems.map(renderNewsCard).join('')}</div>`;
+      if (section.layout === 'list') return `<div class="grid lg:grid-cols-2 gap-4">${sectionItems.map(renderListItem).join('')}</div>`;
+      return `<div class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">${sectionItems.map(renderCard).join('')}</div>`;
+    }
+
+    function renderNewsCard(item) {
+      const accent = accentMap[item.accent] || accentMap.amber;
+      return `<article class="section-card relative rounded-3xl bg-white border ${accent.border} shadow-sm overflow-hidden cursor-pointer" onclick="openNewsDetail('${escapeAttr(item.id)}')">
+        ${adminButtons(item)}
+        ${renderNewsImages(item)}
+        <div class="p-6">
+          <div class="flex items-center justify-between gap-3 mb-5"><span class="text-xs font-semibold ${accent.chip} px-3 py-1 rounded-full">${escapeHtml(item.dateText || 'ข่าวประกาศ')}</span>${item.featured ? '<span class="text-xs font-semibold bg-rose-50 text-rose-600 px-3 py-1 rounded-full"><i class="fa-solid fa-thumbtack mr-1"></i>ปักหมุด</span>' : ''}</div>
+          <h3 class="text-xl font-bold text-slate-900 leading-snug">${escapeHtml(item.title)}</h3>
+          <p class="mt-3 text-slate-500 leading-relaxed line-clamp-3">${escapeHtml(item.description || item.subtitle || '')}</p>
+          <div class="mt-6 flex flex-wrap gap-3">
+            <button type="button" onclick="event.stopPropagation(); openNewsDetail('${escapeAttr(item.id)}')" class="inline-flex items-center gap-2 text-sm font-semibold text-sky-700 hover:text-sky-900">อ่านรายละเอียด<i class="fa-solid fa-book-open text-xs"></i></button>
+            ${item.url ? `<a href="${escapeAttr(item.url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" class="inline-flex items-center gap-2 text-sm font-semibold text-amber-700 hover:text-amber-900">เอกสารแนบ<i class="fa-solid fa-paperclip text-xs"></i></a>` : ''}
+          </div>
+        </div>
+      </article>`;
+    }
+
+    function renderNewsImages(item) {
+      const urls = [item.image1Url, item.image2Url].filter(Boolean);
+      if (!urls.length) return '';
+      if (urls.length === 1) {
+        return `<div class="h-52 bg-slate-100 overflow-hidden"><img src="${escapeAttr(urls[0])}" alt="${escapeAttr(item.title)}" class="w-full h-full object-cover" loading="lazy"></div>`;
+      }
+      return `<div class="grid grid-cols-2 gap-1 bg-slate-100 overflow-hidden h-52">${urls.map((url, idx) => `<img src="${escapeAttr(url)}" alt="${escapeAttr(item.title)} รูปที่ ${idx + 1}" class="w-full h-full object-cover" loading="lazy">`).join('')}</div>`;
+    }
+
+    function openNewsDetail(id) {
+      const item = items.find(x => x.id === id);
+      if (!item) return showToast('ไม่พบรายละเอียดข่าวนี้', true);
+      const accent = accentMap[item.accent] || accentMap.amber;
+      const urls = [item.image1Url, item.image2Url].filter(Boolean);
+      const images = !urls.length ? '' : (urls.length === 1
+        ? `<div class="rounded-3xl overflow-hidden bg-slate-100 mb-6"><img src="${escapeAttr(urls[0])}" alt="${escapeAttr(item.title)}" class="w-full max-h-[520px] object-contain bg-slate-100"></div>`
+        : `<div class="grid md:grid-cols-2 gap-3 mb-6">${urls.map((url, idx) => `<div class="rounded-3xl overflow-hidden bg-slate-100"><img src="${escapeAttr(url)}" alt="${escapeAttr(item.title)} รูปที่ ${idx + 1}" class="w-full h-full max-h-[420px] object-contain bg-slate-100"></div>`).join('')}</div>`);
+      const date = item.dateText || 'ข่าวประชาสัมพันธ์ / ประกาศ';
+      const detailText = formatMultilineText(item.description || item.subtitle || '');
+      const attachment = item.url ? `<a href="${escapeAttr(item.url)}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-sky-600 hover:bg-sky-700 text-white font-semibold"><i class="fa-solid fa-paperclip"></i>เปิดเอกสารแนบ / ลิงก์ที่เกี่ยวข้อง</a>` : '<span class="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-slate-100 text-slate-500 font-semibold"><i class="fa-solid fa-circle-info"></i>ไม่มีเอกสารแนบ</span>';
+      const adminEdit = adminPassword ? `<button onclick="closeModal('newsDetailModal'); openEditor('', '${escapeAttr(item.id)}')" class="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-amber-50 hover:bg-amber-100 text-amber-700 font-semibold"><i class="fa-solid fa-pen"></i>แก้ไขข่าวนี้</button>` : '';
+      document.getElementById('newsDetailBody').innerHTML = `
+        ${images}
+        <div class="flex flex-wrap items-center gap-2 mb-4">
+          <span class="text-xs font-semibold ${accent.chip} px-3 py-1 rounded-full"><i class="fa-regular fa-calendar mr-1"></i>${escapeHtml(date)}</span>
+          ${item.featured ? '<span class="text-xs font-semibold bg-rose-50 text-rose-600 px-3 py-1 rounded-full"><i class="fa-solid fa-thumbtack mr-1"></i>ปักหมุด</span>' : ''}
+        </div>
+        <h2 class="text-2xl md:text-4xl font-bold text-slate-900 leading-tight">${escapeHtml(item.title)}</h2>
+        ${item.subtitle ? `<p class="mt-3 text-lg text-slate-500 font-medium">${escapeHtml(item.subtitle)}</p>` : ''}
+        <div class="mt-6 prose prose-slate max-w-none text-slate-600 leading-8 text-[15px] md:text-base">${detailText}</div>
+        <div class="mt-8 pt-6 border-t border-slate-100 flex flex-col sm:flex-row gap-3">${attachment}${adminEdit}</div>
+      `;
+      openModal('newsDetailModal');
+    }
+
+    function formatMultilineText(value) {
+      const text = escapeHtml(value || '');
+      if (!text.trim()) return '<p>ไม่มีรายละเอียดเพิ่มเติม</p>';
+      return text.split(/\n{2,}/).map(block => `<p class="mb-4">${block.replace(/\n/g, '<br>')}</p>`).join('');
+    }
+
+    function renderCard(item) {
+      const accent = accentMap[item.accent] || accentMap.sky;
+      return `<article class="section-card relative rounded-3xl bg-white border ${accent.border} p-6 shadow-sm min-h-[230px] flex flex-col">
+        ${adminButtons(item)}
+        <div class="w-14 h-14 rounded-2xl ${accent.icon} flex items-center justify-center text-2xl mb-5"><i class="fa-solid ${escapeAttr(item.icon || 'fa-file-lines')}"></i></div>
+        <h3 class="text-lg font-bold text-slate-900 leading-snug">${escapeHtml(item.title)}</h3>
+        ${item.subtitle ? `<p class="mt-1 text-sm font-medium text-slate-400">${escapeHtml(item.subtitle)}</p>` : ''}
+        <p class="mt-3 text-sm text-slate-500 leading-relaxed flex-1">${escapeHtml(item.description || '')}</p>
+        <div class="mt-5 flex items-center justify-between gap-3"><span class="text-xs ${accent.chip} px-3 py-1 rounded-full">${escapeHtml(item.status || 'เผยแพร่')}</span>${renderOpenLink(item, 'เปิดใช้งาน')}</div>
+      </article>`;
+    }
+
+    function renderListItem(item) {
+      const accent = accentMap[item.accent] || accentMap.rose;
+      return `<article class="section-card relative rounded-3xl bg-white border ${accent.border} p-5 shadow-sm flex gap-4 items-start">
+        ${adminButtons(item)}
+        <div class="shrink-0 w-12 h-12 rounded-2xl ${accent.icon} flex items-center justify-center text-xl"><i class="fa-solid ${escapeAttr(item.icon || 'fa-file-lines')}"></i></div>
+        <div class="min-w-0 flex-1 pr-16">
+          <h3 class="font-bold text-slate-900 leading-snug">${escapeHtml(item.title)}</h3>
+          ${item.subtitle ? `<p class="text-sm text-slate-400 mt-1">${escapeHtml(item.subtitle)}</p>` : ''}
+          ${item.description ? `<p class="text-sm text-slate-500 mt-2 leading-relaxed">${escapeHtml(item.description)}</p>` : ''}
+          <div class="mt-3">${renderOpenLink(item, 'เปิดเอกสาร')}</div>
+        </div>
+      </article>`;
+    }
+
+    function renderOpenLink(item, label) {
+      if (!item.url) return '<span class="text-sm text-slate-400">ยังไม่แนบลิงก์</span>';
+      return `<a href="${escapeAttr(item.url)}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 text-sm font-semibold text-sky-700 hover:text-sky-900">${label}<i class="fa-solid fa-arrow-up-right-from-square text-xs"></i></a>`;
+    }
+
+    function adminButtons(item) {
+      return `<div class="admin-only absolute top-4 right-4 gap-1 z-10">
+        <button onclick="event.stopPropagation(); openEditor('', '${escapeAttr(item.id)}')" title="แก้ไข" class="w-9 h-9 rounded-full bg-white border border-slate-200 text-sky-600 hover:bg-sky-50 shadow-sm"><i class="fa-solid fa-pen"></i></button>
+        <button onclick="event.stopPropagation(); deleteById('${escapeAttr(item.id)}')" title="ลบ" class="w-9 h-9 rounded-full bg-white border border-slate-200 text-rose-600 hover:bg-rose-50 shadow-sm"><i class="fa-solid fa-trash"></i></button>
+      </div>`;
+    }
+
+    function renderStats() {
+      const visible = items.filter(x => x.status !== 'ซ่อน');
+      document.getElementById('statSystems').textContent = visible.filter(x => x.category === 'innovation').length;
+      document.getElementById('statNews').textContent = visible.filter(x => x.category === 'news').length;
+      document.getElementById('statEoc').textContent = visible.filter(x => x.category === 'eoc_ics').length;
+      document.getElementById('statDocs').textContent = visible.filter(x => x.category !== 'news' && x.category !== 'innovation').length;
+    }
+
+    function renderCategoryOptions() {
+      const select = document.getElementById('fieldCategory');
+      select.innerHTML = sections.map(s => `<option value="${escapeAttr(s.key)}">${escapeHtml(s.title)}</option>`).join('');
+    }
+
+    async function loginAdmin(e) {
+      e.preventDefault();
+      const pw = document.getElementById('adminPassword').value;
+      try {
+        await callServer('loginAdmin', [pw]);
+        adminPassword = pw;
+        sessionStorage.setItem('epiAdminPassword', pw);
+        setAdminMode(true);
+        closeModal('loginModal');
+        await reloadAdminData();
+        showToast('เข้าสู่ระบบผู้ดูแลแล้ว');
+      } catch (err) {
+        document.getElementById('loginError').classList.remove('hidden');
+      }
+    }
+
+    function logoutAdmin() {
+      adminPassword = '';
+      sessionStorage.removeItem('epiAdminPassword');
+      setAdminMode(false);
+      loadData();
+      showToast('ออกจากระบบผู้ดูแลแล้ว');
+    }
+
+    function setAdminMode(enabled) {
+      document.body.classList.toggle('is-admin', enabled);
+      document.getElementById('loginBtn').classList.toggle('hidden', enabled);
+      document.getElementById('logoutBtn').classList.toggle('hidden', !enabled);
+      document.getElementById('logoutBtn').classList.toggle('inline-flex', enabled);
+    }
+
+    function toggleNewsImageFields() {
+      const isNews = document.getElementById('fieldCategory').value === 'news';
+      document.getElementById('newsImageFields').classList.toggle('hidden', !isNews);
+    }
+
+    function setImagePreview(slot, url) {
+      const box = document.getElementById(`image${slot}Preview`);
+      box.innerHTML = url ? `<img src="${escapeAttr(url)}" alt="ตัวอย่างรูปข่าว ${slot}">` : '<div class="h-[86px] rounded-2xl border border-dashed border-slate-300 bg-white/70 flex items-center justify-center text-xs text-slate-400">ยังไม่มีรูป</div>';
+    }
+
+    function previewSelectedImage(slot) {
+      const input = document.getElementById(`fieldImage${slot}File`);
+      const file = input.files && input.files[0];
+      if (!file) return setImagePreview(slot, document.getElementById(`fieldImage${slot}Url`).value);
+      if (!file.type.startsWith('image/')) {
+        input.value = '';
+        return showToast('กรุณาเลือกไฟล์รูปภาพเท่านั้น', true);
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        input.value = '';
+        return showToast('ขนาดรูปต้องไม่เกิน 5 MB ต่อรูป', true);
+      }
+      const reader = new FileReader();
+      reader.onload = e => setImagePreview(slot, e.target.result);
+      reader.readAsDataURL(file);
+    }
+
+    function clearNewsImage(slot) {
+      document.getElementById(`fieldImage${slot}Url`).value = '';
+      document.getElementById(`fieldImage${slot}File`).value = '';
+      setImagePreview(slot, '');
+    }
+
+    function readImageFile(slot) {
+      const input = document.getElementById(`fieldImage${slot}File`);
+      const file = input.files && input.files[0];
+      if (!file) return Promise.resolve({ dataUrl: '', name: '' });
+      if (!file.type.startsWith('image/')) return Promise.reject(new Error('กรุณาเลือกไฟล์รูปภาพเท่านั้น'));
+      if (file.size > 5 * 1024 * 1024) return Promise.reject(new Error('ขนาดรูปต้องไม่เกิน 5 MB ต่อรูป'));
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = e => resolve({ dataUrl: e.target.result, name: file.name });
+        reader.onerror = () => reject(new Error('อ่านไฟล์รูปภาพไม่สำเร็จ'));
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function openEditor(category = '', id = '') {
+      if (!adminPassword) return openModal('loginModal');
+      document.getElementById('contentForm').reset();
+      document.getElementById('fieldId').value = '';
+      document.getElementById('fieldSortOrder').value = 999;
+      setIconValue('fa-file-lines');
+      document.getElementById('fieldImage1Url').value = '';
+      document.getElementById('fieldImage2Url').value = '';
+      document.getElementById('fieldImage1File').value = '';
+      document.getElementById('fieldImage2File').value = '';
+      setImagePreview(1, '');
+      setImagePreview(2, '');
+      document.getElementById('deleteCurrentBtn').classList.add('hidden');
+      document.getElementById('editorTitle').innerHTML = '<i class="fa-solid fa-plus text-emerald-600 mr-2"></i>เพิ่มข้อมูลใหม่';
+
+      if (category) {
+        document.getElementById('fieldCategory').value = category;
+        const sec = sections.find(s => s.key === category);
+        if (sec) {
+          document.getElementById('fieldAccent').value = sec.accent;
+          setIconValue(sec.icon);
+        }
+      }
+
+      if (id) {
+        const item = items.find(x => x.id === id);
+        if (!item) return showToast('ไม่พบข้อมูลที่ต้องการแก้ไข', true);
+        document.getElementById('editorTitle').innerHTML = '<i class="fa-solid fa-pen-to-square text-sky-600 mr-2"></i>แก้ไขข้อมูล';
+        document.getElementById('fieldId').value = item.id || '';
+        document.getElementById('fieldCategory').value = item.category || 'news';
+        document.getElementById('fieldStatus').value = item.status || 'เผยแพร่';
+        document.getElementById('fieldTitle').value = item.title || '';
+        document.getElementById('fieldSubtitle').value = item.subtitle || '';
+        document.getElementById('fieldDescription').value = item.description || '';
+        document.getElementById('fieldUrl').value = item.url || '';
+        setIconValue(item.icon || 'fa-file-lines');
+        document.getElementById('fieldAccent').value = item.accent || 'sky';
+        document.getElementById('fieldDateText').value = item.dateText || '';
+        document.getElementById('fieldSortOrder').value = item.sortOrder || 999;
+        document.getElementById('fieldFeatured').checked = !!item.featured;
+        document.getElementById('fieldImage1Url').value = item.image1Url || '';
+        document.getElementById('fieldImage2Url').value = item.image2Url || '';
+        setImagePreview(1, item.image1Url || '');
+        setImagePreview(2, item.image2Url || '');
+        document.getElementById('deleteCurrentBtn').classList.remove('hidden');
+      }
+      toggleNewsImageFields();
+      editorHasUnsavedChanges = false;
+      openModal('editorModal');
+    }
+
+    async function saveContent(e) {
+      e.preventDefault();
+      if (isSavingContent) return;
+      const btn = document.getElementById('saveBtn');
+      const original = btn.innerHTML;
+      isSavingContent = true;
+      setSavingOverlay(true);
+      setEditorFormDisabled(true);
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>กำลังบันทึก...';
+      let image1 = { dataUrl: '', name: '' };
+      let image2 = { dataUrl: '', name: '' };
+      try {
+        if (document.getElementById('fieldCategory').value === 'news') {
+          image1 = await readImageFile(1);
+          image2 = await readImageFile(2);
+        }
+      } catch (err) {
+        btn.disabled = false;
+        btn.innerHTML = original;
+        isSavingContent = false;
+        setSavingOverlay(false);
+        setEditorFormDisabled(false);
+        return showToast(err.message, true);
+      }
+      const payload = {
+        id: document.getElementById('fieldId').value,
+        category: document.getElementById('fieldCategory').value,
+        status: document.getElementById('fieldStatus').value,
+        title: document.getElementById('fieldTitle').value,
+        subtitle: document.getElementById('fieldSubtitle').value,
+        description: document.getElementById('fieldDescription').value,
+        url: document.getElementById('fieldUrl').value,
+        icon: getSelectedIconValue(),
+        accent: document.getElementById('fieldAccent').value,
+        dateText: document.getElementById('fieldDateText').value,
+        sortOrder: document.getElementById('fieldSortOrder').value,
+        featured: document.getElementById('fieldFeatured').checked,
+        image1Url: document.getElementById('fieldImage1Url').value,
+        image2Url: document.getElementById('fieldImage2Url').value,
+        image1DataUrl: image1.dataUrl,
+        image1Name: image1.name,
+        image2DataUrl: image2.dataUrl,
+        image2Name: image2.name
+      };
+      try {
+        await callServer('saveContent', [payload, adminPassword]);
+        clearEditorDraft();
+        editorHasUnsavedChanges = false;
+        closeModal('editorModal');
+        await reloadAdminData();
+        showToast('บันทึกข้อมูลเรียบร้อยแล้ว');
+      } catch (err) {
+        showToast(err.message, true);
+      } finally {
+        isSavingContent = false;
+        setSavingOverlay(false);
+        setEditorFormDisabled(false);
+        btn.disabled = false;
+        btn.innerHTML = original;
+      }
+    }
+
+    function askDeleteCurrent() {
+      const id = document.getElementById('fieldId').value;
+      if (id) deleteById(id);
+    }
+
+    async function deleteById(id) {
+      if (!adminPassword) return openModal('loginModal');
+      const item = items.find(x => x.id === id);
+      const ok = confirm(`ยืนยันการลบรายการ: ${item ? item.title : id} ?`);
+      if (!ok) return;
+      try {
+        await callServer('deleteContent', [id, adminPassword]);
+        closeModal('editorModal');
+        await reloadAdminData();
+        showToast('ลบข้อมูลเรียบร้อยแล้ว');
+      } catch (err) {
+        showToast(err.message, true);
+      }
+    }
+
+    function openSearch() {
+      openModal('searchModal');
+      setTimeout(() => document.getElementById('globalSearch').focus(), 100);
+      renderSearchResults();
+    }
+
+    function renderSearchResults() {
+      const q = (document.getElementById('globalSearch').value || '').toLowerCase().trim();
+      const source = q ? items.filter(item => [item.title, item.subtitle, item.description].join(' ').toLowerCase().includes(q)) : items.slice(0, 12);
+      document.getElementById('searchResults').innerHTML = source.length ? source.map(item => {
+        const sec = sections.find(s => s.key === item.category) || { title: item.category };
+        const openAction = item.category === 'news' ? `<button onclick="closeModal('searchModal'); openNewsDetail('${escapeAttr(item.id)}')" class="inline-flex items-center gap-2 text-sm font-semibold text-sky-700 hover:text-sky-900">อ่านรายละเอียด<i class="fa-solid fa-book-open text-xs"></i></button>` : renderOpenLink(item, 'เปิด');
+        return `<div class="py-4 flex gap-4"><div class="w-11 h-11 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center"><i class="fa-solid ${escapeAttr(item.icon || 'fa-file-lines')}"></i></div><div class="flex-1"><p class="font-bold text-slate-900">${escapeHtml(item.title)}</p><p class="text-sm text-slate-400">${escapeHtml(sec.title)}</p><p class="text-sm text-slate-500 mt-1">${escapeHtml(item.description || '')}</p><div class="mt-2">${openAction}</div></div></div>`;
+      }).join('') : '<div class="py-8 text-center text-slate-400">ไม่พบข้อมูลที่ค้นหา</div>';
+    }
+
+    function openModal(id) {
+      const modal = document.getElementById(id);
+      if (!modal) return;
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      if (id === 'editorModal') setTimeout(restoreEditorDraftIfNeeded, 0);
+    }
+
+    function closeModal(id, force = false) {
+      if (id === 'editorModal' && !force) {
+        if (isSavingContent) return showToast('กำลังบันทึกข้อมูล กรุณารอสักครู่', true);
+        if (editorHasUnsavedChanges && !confirm('มีข้อมูลที่ยังไม่ได้บันทึก ต้องการปิดหน้าต่างนี้หรือไม่? ระบบจะเก็บร่างไว้ชั่วคราวในเบราว์เซอร์')) return;
+      }
+      const modal = document.getElementById(id);
+      if (!modal) return;
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function bindModalBackdrop() {
+      document.querySelectorAll('.fixed.inset-0').forEach(modal => modal.addEventListener('click', e => {
+        if (e.target === modal) {
+          if (modal.id === 'editorModal') return; // ป้องกันคลิกพื้นหลังแล้วฟอร์มหายระหว่างกรอก/อัปโหลด
+          closeModal(modal.id);
+        }
+      }));
+    }
+
+    function setSavingOverlay(show) {
+      const overlay = document.getElementById('savingOverlay');
+      if (overlay) overlay.classList.toggle('show', !!show);
+    }
+
+    function setEditorFormDisabled(disabled) {
+      document.querySelectorAll('#contentForm input, #contentForm textarea, #contentForm select, #contentForm button').forEach(el => {
+        if (el.id === 'saveBtn') return;
+        el.disabled = !!disabled;
+      });
+    }
+
+    function bindEditorDraftListeners() {
+      const form = document.getElementById('contentForm');
+      if (!form) return;
+      form.addEventListener('input', rememberEditorDraft);
+      form.addEventListener('change', rememberEditorDraft);
+      window.addEventListener('beforeunload', e => {
+        if (isSavingContent || editorHasUnsavedChanges) {
+          e.preventDefault();
+          e.returnValue = '';
+        }
+      });
+    }
+
+    function rememberEditorDraft() {
+      const modal = document.getElementById('editorModal');
+      if (!modal || modal.classList.contains('hidden')) return;
+      editorHasUnsavedChanges = true;
+      const draft = {
+        id: document.getElementById('fieldId')?.value || '',
+        category: document.getElementById('fieldCategory')?.value || '',
+        status: document.getElementById('fieldStatus')?.value || '',
+        title: document.getElementById('fieldTitle')?.value || '',
+        subtitle: document.getElementById('fieldSubtitle')?.value || '',
+        description: document.getElementById('fieldDescription')?.value || '',
+        url: document.getElementById('fieldUrl')?.value || '',
+        icon: getSelectedIconValue(),
+        customIcon: document.getElementById('fieldIconCustom')?.value || '',
+        accent: document.getElementById('fieldAccent')?.value || '',
+        dateText: document.getElementById('fieldDateText')?.value || '',
+        sortOrder: document.getElementById('fieldSortOrder')?.value || '',
+        featured: document.getElementById('fieldFeatured')?.checked || false,
+        image1Url: document.getElementById('fieldImage1Url')?.value || '',
+        image2Url: document.getElementById('fieldImage2Url')?.value || ''
+      };
+      sessionStorage.setItem('epiEditorDraft', JSON.stringify(draft));
+    }
+
+    function clearEditorDraft() {
+      sessionStorage.removeItem('epiEditorDraft');
+    }
+
+    function restoreEditorDraftIfNeeded() {
+      const raw = sessionStorage.getItem('epiEditorDraft');
+      if (!raw) return;
+      let draft;
+      try { draft = JSON.parse(raw); } catch (e) { return; }
+      const currentId = document.getElementById('fieldId')?.value || '';
+      if (currentId && draft.id && currentId !== draft.id) return;
+      if (!draft.title && !draft.description && !draft.url) return;
+      if (!confirm('พบข้อมูลร่างที่ยังไม่ได้บันทึก ต้องการกู้คืนข้อมูลที่กรอกไว้หรือไม่?')) return;
+      ['fieldId','fieldCategory','fieldStatus','fieldTitle','fieldSubtitle','fieldDescription','fieldUrl','fieldAccent','fieldDateText','fieldSortOrder','fieldImage1Url','fieldImage2Url'].forEach(id => {
+        const key = id.replace('field','');
+        const camel = key.charAt(0).toLowerCase() + key.slice(1);
+        if (document.getElementById(id) && draft[camel] !== undefined) document.getElementById(id).value = draft[camel];
+      });
+      document.getElementById('fieldFeatured').checked = !!draft.featured;
+      setIconValue(draft.icon || draft.customIcon || 'fa-file-lines');
+      setImagePreview(1, draft.image1Url || '');
+      setImagePreview(2, draft.image2Url || '');
+      toggleNewsImageFields();
+    }
+
+    function showToast(message, isError = false) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = `fixed bottom-5 right-5 z-[120] rounded-2xl px-5 py-4 shadow-soft text-sm ${isError ? 'bg-rose-600 text-white' : 'bg-slate-900 text-white'}`;
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 3500);
+    }
+
+    function escapeHtml(value) { return String(value || '').replace(/[&<>'"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[c])); }
+    function escapeAttr(value) { return escapeHtml(value).replace(/`/g, '&#96;'); }
+  </script>
+</body>
+</html>
